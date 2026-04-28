@@ -30,7 +30,10 @@ function initGame() {
     game.subBoards = Array(9).fill(null).map(() => Array(9).fill(null));
     // Determine starting player based on mode and starter selection
     if (game.gameMode === 'pvc') {
-        const starter = starterSelect ? starterSelect.value : 'player';
+        let starter = starterSelect ? starterSelect.value : 'player';
+        if (starter === 'random') {
+            starter = Math.random() < 0.5 ? 'player' : 'ai';
+        }
         game.currentPlayer = starter === 'ai' ? 'O' : 'X';
     } else {
         game.currentPlayer = 'X';
@@ -732,11 +735,11 @@ function isBoardFull(board) {
 // Update UI
 function updateUI() {
     playerTurnEl.textContent = game.currentPlayer;
-    
+
     if (game.activeBoard === null) {
-        boardInfoEl.textContent = 'เลือกกระดานใดก็ได้';
+        boardInfoEl.textContent = 'Select any board to start';
     } else {
-        boardInfoEl.textContent = `ต้องเล่นในกระดานที่ ${game.activeBoard + 1}`;
+        boardInfoEl.textContent = `Must play in board #${game.activeBoard + 1}`;
     }
 }
 
@@ -744,13 +747,12 @@ function updateUI() {
 function endGame(winner) {
     game.gameOver = true;
     if (winner === 'Draw') {
-        winnerTextEl.textContent = '🤝 เสมอกัน!';
+        winnerTextEl.textContent = '🤝 Draw Game!';
     } else {
-        winnerTextEl.textContent = `🎉 ผู้เล่น ${winner} ชนะ!`;
+        winnerTextEl.textContent = `🎉 Player ${winner} Wins!`;
     }
     gameOverEl.style.display = 'flex';
 }
-
 // Event Listeners
 resetBtn.addEventListener('click', initGame);
 playAgainBtn.addEventListener('click', () => {

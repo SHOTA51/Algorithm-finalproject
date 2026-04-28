@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escape the AI Hunter - Algorithm Discovery</title>
+    <title>AuAI | Escape the Hunter</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Escape the <span>AI Hunter</span></h1>
-            <p>Can you block the algorithm before it finds you?</p>
+            <h1>Escape the <span>Hunter</span></h1>
+            <p>Intelligence in Motion | SF231</p>
         </header>
 
         <div class="game-layout">
             <div class="game-container">
-                <canvas id="gameCanvas" width="600" height="600"></canvas>
+                <canvas id="gameCanvas"></canvas>
                 <div id="status-overlay" class="overlay hidden">
-                    <h2 id="status-text">PLAYER WINS!</h2>
+                    <h2 id="status-text">MISSION SUCCESS</h2>
                     <div class="button-group">
                         <button id="retry-btn" class="secondary-btn">Retry Level</button>
                         <button id="next-btn" class="primary-btn">Next Level</button>
@@ -31,40 +31,40 @@
             <div class="side-panel">
                 <div class="game-stats">
                     <div class="stat-box">
-                        <span class="label">Status</span>
+                        <span class="label">System State</span>
                         <span id="game-state-text" class="value">BUILDING</span>
                     </div>
                     <div class="stat-box">
-                        <span class="label">Walls Left</span>
-                        <span id="walls-left" class="value">10</span>
+                        <span class="label">Barriers Remaining</span>
+                        <span id="walls-left" class="value">0</span>
                     </div>
-                    <button id="start-btn" class="primary-btn">START HUNT</button>
+                    <button id="start-btn" class="primary-btn">Initialize Hunt</button>
                 </div>
 
                 <div class="instructions">
-                    <h3>How to Play</h3>
+                    <h3>Tactical Overview</h3>
                     <ul>
-                        <li><strong>Left Click:</strong> Place Walls</li>
-                        <li><strong>Right Click:</strong> Remove Walls</li>
-                        <li><strong>Start Hunt:</strong> Click button or Spacebar</li>
+                        <li><strong>Left Click:</strong> Deploy Barrier</li>
+                        <li><strong>Right Click:</strong> Retract Barrier</li>
+                        <li><strong>Spacebar:</strong> Commence Hunt</li>
                     </ul>
-                    <p class="mission">Objective: Block all paths to yourself so the AI can't find you!</p>
+                    <p class="mission">Objective: Fully obstruct the AI pathfinding to survive.</p>
                 </div>
 
                 <div class="algorithm-visual">
-                    <h3>AI Strategy</h3>
+                    <h3>Sensor Legend</h3>
                     <div class="legend">
-                        <div class="item"><span class="dot hunter"></span> AI Hunter</div>
-                        <div class="item"><span class="dot player"></span> You (Player)</div>
-                        <div class="item"><span class="dot searching"></span> Searching Node</div>
-                        <div class="item"><span class="dot path"></span> Detected Path</div>
+                        <div class="item"><span class="dot hunter"></span> AI Predator</div>
+                        <div class="item"><span class="dot player"></span> Bio Signature</div>
+                        <div class="item"><span class="dot searching"></span> Data Probe</div>
+                        <div class="item"><span class="dot path"></span> Calculated Path</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <a href="../index.html" class="back-link">← Back to Menu</a>
+            <a href="../index.html" class="back-link">← Return to Command Center</a>
         </footer>
     </div>
     <script src="game.js"></script>

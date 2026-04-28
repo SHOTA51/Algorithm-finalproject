@@ -279,13 +279,24 @@ function render() {
     for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
             const node = grid[r][c];
-            let color = "#1e1e1e";
-            if (node.isFixedWall) color = "#334155"; // สีเข้มสำหรับกำแพงสุ่มในแมพ
-            else if (node.isWall) color = "#cbd5e1"; // สีสว่างสำหรับกำแพงที่ผู้เล่นวาง
+            let color = "#050507"; // Deep black-gray floor
+            if (node.isFixedWall) color = "#1e293b"; // Neutral slate for fixed obstacles
+            else if (node.isWall) color = "#00e5ff"; // High-contrast cyan for player walls
             
-            if (searchingNodes.has(node)) color = "rgba(168, 85, 247, 0.15)";
+            ctx.fillStyle = color;
+            if (node.isWall && !node.isFixedWall) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#00e5ff";
+            }
+            
+            if (searchingNodes.has(node)) {
+                color = "rgba(0, 229, 255, 0.1)";
+                ctx.shadowBlur = 0;
+            }
+            
             ctx.fillStyle = color;
             ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
+            ctx.shadowBlur = 0;
 
             // Highlight restricted zones around player and hunter
             if (!isSearching && !isGameOver) {
@@ -293,17 +304,18 @@ function render() {
                 const isNearHunter = Math.abs(r - aiPos.r) <= 1 && Math.abs(c - aiPos.c) <= 1;
 
                 if (isNearPlayer) {
-                    ctx.fillStyle = "rgba(34, 197, 94, 0.1)"; // Subtle green for player zone
+                    ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
                     ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
                 } else if (isNearHunter) {
-                    ctx.fillStyle = "rgba(239, 68, 68, 0.1)"; // Subtle red for hunter zone
+                    ctx.fillStyle = "rgba(244, 63, 94, 0.08)";
                     ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
                 }
             }
         }
     }
     if (finalPath.length > 0) {
-        ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 3;
+        ctx.strokeStyle = "#00e5ff"; ctx.lineWidth = 3;
+        ctx.shadowBlur = 10; ctx.shadowColor = "#00e5ff";
         ctx.beginPath();
         finalPath.forEach((step, i) => {
             const x = step.c * cellWidth + cellWidth/2;
@@ -311,16 +323,17 @@ function render() {
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         });
         ctx.stroke();
+        ctx.shadowBlur = 0;
     }
     
     // AI Hunter
-    ctx.shadowBlur = 10; ctx.shadowColor = "#ef4444";
-    ctx.fillStyle = "#ef4444"; 
+    ctx.shadowBlur = 20; ctx.shadowColor = "#f43f5e";
+    ctx.fillStyle = "#f43f5e"; 
     ctx.fillRect(aiPos.c * cellWidth + 2, aiPos.r * cellHeight + 2, cellWidth - 4, cellHeight - 4);
     
     // Player
-    ctx.shadowColor = "#22c55e";
-    ctx.fillStyle = "#22c55e"; 
+    ctx.shadowColor = "#10b981";
+    ctx.fillStyle = "#10b981"; 
     ctx.fillRect(playerPos.c * cellWidth + 2, playerPos.r * cellHeight + 2, cellWidth - 4, cellHeight - 4);
     ctx.shadowBlur = 0;
 }

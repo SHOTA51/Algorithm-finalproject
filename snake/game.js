@@ -390,32 +390,54 @@ function updateUI() {
 }
 
 function render() {
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#050507';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#1e293b';
+    
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= TILE_COUNT; i++) {
         ctx.beginPath(); ctx.moveTo(i * GRID_SIZE, 0); ctx.lineTo(i * GRID_SIZE, canvas.height); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0, i * GRID_SIZE); ctx.lineTo(canvas.width, i * GRID_SIZE); ctx.stroke();
     }
 
-    ctx.fillStyle = '#fb7185';
-    ctx.shadowBlur = 10; ctx.shadowColor = '#fb7185';
+    // Food
+    ctx.fillStyle = '#f43f5e';
+    ctx.shadowBlur = 15; ctx.shadowColor = '#f43f5e';
     foods.forEach(f => {
         ctx.fillRect(f.x * GRID_SIZE + 2, f.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
     });
     ctx.shadowBlur = 0;
 
+    // Player Snake
     playerSnake.forEach((p, i) => {
-        ctx.fillStyle = i === 0 ? '#38bdf8' : '#0ea5e9';
-        if (isPlayerBoosting) ctx.fillStyle = '#7dd3fc';
+        if (i === 0) {
+            ctx.fillStyle = '#60a5fa';
+            ctx.shadowBlur = isPlayerBoosting ? 15 : 0;
+            ctx.shadowColor = '#60a5fa';
+        } else {
+            ctx.fillStyle = '#3b82f6';
+            ctx.shadowBlur = 0;
+        }
+        if (isPlayerBoosting && i > 0) ctx.fillStyle = '#60a5fa';
         ctx.fillRect(p.x * GRID_SIZE + 1, p.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
     });
+    ctx.shadowBlur = 0;
+
+    // Bot Snake
     botSnake.forEach((p, i) => {
-        ctx.fillStyle = i === 0 ? '#f59e0b' : '#fbbf24';
-        if (isBotBoosting) ctx.fillStyle = '#fcd34d';
+        if (i === 0) {
+            ctx.fillStyle = '#e4e4e7';
+            ctx.shadowBlur = isBotBoosting ? 15 : 0;
+            ctx.shadowColor = '#e4e4e7';
+        } else {
+            ctx.fillStyle = '#a1a1aa';
+            ctx.shadowBlur = 0;
+        }
+        if (isBotBoosting && i > 0) ctx.fillStyle = '#e4e4e7';
         ctx.fillRect(p.x * GRID_SIZE + 1, p.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
     });
+    ctx.shadowBlur = 0;
 }
 
 function endGame(winner) {
@@ -429,24 +451,33 @@ function endGame(winner) {
 
 // Input Handling
 window.addEventListener('keydown', e => {
-    if (!gameStarted && (e.key === 'Enter' || e.key === ' ')) startGame();
+    if (!gameStarted) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            if (isGameOver) {
+                init();
+            }
+            startGame();
+        }
+    }
     
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
         e.preventDefault();
     }
 
-    if (e.key === ' ') {
+    if (e.key === ' ' && gameStarted && !isGameOver) {
         if (!isPlayerBoosting) {
             isPlayerBoosting = true;
             lastPlayerBoostLossTime = Date.now();
         }
     }
 
-    switch(e.key) {
-        case 'ArrowUp': case 'w': case 'W': if (playerDy !== 1) { nextPlayerDx = 0; nextPlayerDy = -1; } break;
-        case 'ArrowDown': case 's': case 'S': if (playerDy !== -1) { nextPlayerDx = 0; nextPlayerDy = 1; } break;
-        case 'ArrowLeft': case 'a': case 'A': if (playerDx !== 1) { nextPlayerDx = -1; nextPlayerDy = 0; } break;
-        case 'ArrowRight': case 'd': case 'D': if (playerDx !== -1) { nextPlayerDx = 1; nextPlayerDy = 0; } break;
+    if (gameStarted && !isGameOver) {
+        switch(e.key) {
+            case 'ArrowUp': case 'w': case 'W': if (playerDy !== 1) { nextPlayerDx = 0; nextPlayerDy = -1; } break;
+            case 'ArrowDown': case 's': case 'S': if (playerDy !== -1) { nextPlayerDx = 0; nextPlayerDy = 1; } break;
+            case 'ArrowLeft': case 'a': case 'A': if (playerDx !== 1) { nextPlayerDx = -1; nextPlayerDy = 0; } break;
+            case 'ArrowRight': case 'd': case 'D': if (playerDx !== -1) { nextPlayerDx = 1; nextPlayerDy = 0; } break;
+        }
     }
 });
 

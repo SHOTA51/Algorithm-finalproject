@@ -1,46 +1,53 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Tic-Tac-Toe</title>
+    <title>Advanced Tic-Tac-Toe | AuAI</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>🧠 Advanced Tic-Tac-Toe</h1>
+        <header style="text-align: center;">
+            <h1>Au<span>AI</span></h1>
+            <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 6px; opacity: 0.8;">Ultimate Tic-Tac-Toe</p>
+        </header>
         
         <div class="controls">
             <div class="mode-selection">
-                <button id="pvp-btn" class="mode-btn active">👥 Player vs Player</button>
-                <button id="pvc-btn" class="mode-btn">🤖 Player vs AI</button>
+                <button id="pvp-btn" class="mode-btn active">Player vs Player</button>
+                <button id="pvc-btn" class="mode-btn">Player vs AI</button>
             </div>
             
             <div class="difficulty-selection" style="display: none;">
-                <label>ระดับความยาก:</label>
+                <label>Difficulty Level:</label>
                 <select id="difficulty">
-                    <option value="easy">🟢 Easy</option>
-                    <option value="medium">🟡 Medium</option>
-                    <option value="hard">🔴 Hard</option>
-                    <option value="impossible">💀 Impossible</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="impossible">Impossible</option>
                 </select>
             </div>
 
-            <div class="starter-selection" style="display: none; margin-top:8px;">
-                <label>เริ่มเกมโดย:</label>
-                <div class="starter-toggle" role="tablist" aria-label="Starter selection">
-                    <button type="button" class="starter-btn active" data-value="player" id="starter-player">ผู้เล่น (X)</button>
+            <div class="starter-selection" style="display: none;">
+                <label>Who Starts First?</label>
+                <div class="starter-toggle">
+                    <button type="button" class="starter-btn active" data-value="player" id="starter-player">Player (X)</button>
                     <button type="button" class="starter-btn" data-value="ai" id="starter-ai">AI (O)</button>
+                    <button type="button" class="starter-btn" data-value="random" id="starter-random">Random</button>
                 </div>
                 <input type="hidden" id="starter" value="player">
             </div>
             
-            <button id="reset-btn" class="btn">🔄 เริ่มเกมใหม่</button>
+            <button id="reset-btn" class="btn">Reset Game</button>
         </div>
 
         <div class="game-info">
-            <div class="current-player">ผู้เล่นปัจจุบัน: <span id="player-turn">X</span></div>
-            <div class="active-board-info" id="board-info">เลือกกระดานใดก็ได้</div>
+            <div class="current-player">Current Turn: <span id="player-turn">X</span></div>
+            <div class="active-board-info" id="board-info">Select any board to start</div>
         </div>
 
         <div id="big-board" class="big-board"></div>
@@ -48,34 +55,37 @@
         <div id="game-over" class="game-over" style="display: none;">
             <div class="game-over-content">
                 <h2 id="winner-text"></h2>
-                <button id="play-again-btn" class="btn">เล่นอีกครั้ง</button>
+                <button id="play-again-btn" class="btn">Play Again</button>
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="../index.html" style="color: white; text-decoration: none; opacity: 0.8;">← กลับสู่หน้าหลัก</a>
+        <div style="text-align: center;">
+            <a href="../index.html" class="back-link">← Back to Menu</a>
         </div>
     </div>
 
-        <script src="game.js"></script>
-        <script>
-        (function(){
-            const btnPlayer = document.getElementById('starter-player');
-            const btnAI = document.getElementById('starter-ai');
-            const starterInput = document.getElementById('starter');
-            function setStarter(value){
-                if(!starterInput) return;
-                starterInput.value = value;
-                const event = new Event('change', { bubbles: true });
-                starterInput.dispatchEvent(event);
-                if(btnPlayer && btnAI){
-                    btnPlayer.classList.toggle('active', value==='player');
-                    btnAI.classList.toggle('active', value==='ai');
-                }
+    <script src="game.js"></script>
+    <script>
+    (function(){
+        const btnPlayer = document.getElementById('starter-player');
+        const btnAI = document.getElementById('starter-ai');
+        const btnRandom = document.getElementById('starter-random');
+        const starterInput = document.getElementById('starter');
+        function setStarter(value){
+            if(!starterInput) return;
+            starterInput.value = value;
+            const event = new Event('change', { bubbles: true });
+            starterInput.dispatchEvent(event);
+            if(btnPlayer && btnAI && btnRandom){
+                btnPlayer.classList.toggle('active', value==='player');
+                btnAI.classList.toggle('active', value==='ai');
+                btnRandom.classList.toggle('active', value==='random');
             }
-            if(btnPlayer) btnPlayer.addEventListener('click', ()=> setStarter('player'));
-            if(btnAI) btnAI.addEventListener('click', ()=> setStarter('ai'));
-        })();
-        </script>
+        }
+        if(btnPlayer) btnPlayer.addEventListener('click', ()=> setStarter('player'));
+        if(btnAI) btnAI.addEventListener('click', ()=> setStarter('ai'));
+        if(btnRandom) btnRandom.addEventListener('click', ()=> setStarter('random'));
+    })();
+    </script>
 </body>
 </html>

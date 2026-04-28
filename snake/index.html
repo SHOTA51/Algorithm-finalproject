@@ -12,8 +12,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Snake <span>1v1 Battle</span></h1>
-            <p>SF231 Vibe Coding with Algorithm Discovery</p>
+            <h1>Sn<span>ake</span></h1>
+            <p>Snake 1v1 Battle</p>
         </header>
 
         <div class="game-wrapper">
@@ -61,16 +61,39 @@
                     </select>
                 </div>
 
+                <div class="color-legend">
+                    <div class="legend-item">
+                        <div class="color-box player"></div>
+                        <span>Player Snake</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box ai"></div>
+                        <span>AI Predator</span>
+                    </div>
+                </div>
+
                 <div class="algorithm-info">
                     <h3>AI Strategy</h3>
                     <div id="algo-tag" class="algo-tag">A* Pathfinding</div>
                     <p id="algo-desc">Finding the optimal path to food while predicting collisions.</p>
                 </div>
 
-                <div class="controls-hint">
-                    <p><strong>Controls:</strong> Arrow Keys or WASD</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.75rem;">Game speed is fixed for balanced 1v1 battle.</p>
-                </div>
+            </div>
+        </div>
+
+        <div class="keybinds-bar">
+            <div class="keybind-item">
+                <span class="key-cap">WASD</span>
+                <span class="key-cap">ARROWS</span>
+                <span>Move</span>
+            </div>
+            <div class="keybind-item">
+                <span class="key-cap">SPACE</span>
+                <span>Hold to Boost</span>
+            </div>
+            <div class="keybind-item">
+                <span class="key-cap">ENTER</span>
+                <span>Restart</span>
             </div>
         </div>
 
