@@ -31,6 +31,18 @@
             <div class="side-panel">
                 <div class="game-stats">
                     <div class="stat-box">
+                        <span class="label">Win Streak</span>
+                        <span id="win-streak" class="value">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="label">Difficulty</span>
+                        <select id="difficulty-select" class="difficulty-dropdown">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="stat-box">
                         <span class="label">System State</span>
                         <span id="game-state-text" class="value">BUILDING</span>
                     </div>

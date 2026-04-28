@@ -533,7 +533,7 @@ function endGame(winner) {
 // Input Handling
 window.addEventListener('keydown', e => {
     if (!gameStarted) {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === ' ') {
             if (isGameOver) {
                 init();
             }

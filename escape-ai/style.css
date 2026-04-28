@@ -163,6 +163,36 @@ canvas {
     margin-top: 0.25rem;
 }
 
+.difficulty-dropdown {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 0.5rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.difficulty-dropdown:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.difficulty-dropdown:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.difficulty-dropdown option {
+    background: #0f0f12;
+    color: white;
+}
+
 .instructions, .algorithm-visual {
     background: rgba(255, 255, 255, 0.02);
     padding: 1.5rem;
