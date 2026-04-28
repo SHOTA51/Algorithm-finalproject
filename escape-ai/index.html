@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape the AI Hunter - Algorithm Discovery</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Escape the <span>AI Hunter</span></h1>
+            <p>Can you block the algorithm before it finds you?</p>
+        </header>
+
+        <div class="game-layout">
+            <div class="game-container">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+                <div id="status-overlay" class="overlay hidden">
+                    <h2 id="status-text">PLAYER WINS!</h2>
+                    <button id="play-again-btn" class="primary-btn" style="margin-top: 1rem; width: auto; padding: 0.75rem 2rem;">Play Again</button>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="game-stats">
+                    <div class="stat-box">
+                        <span class="label">Status</span>
+                        <span id="game-state-text" class="value">BUILDING</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="label">Walls Left</span>
+                        <span id="walls-left" class="value">10</span>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h3>How to Play</h3>
+                    <ul>
+                        <li><strong>Left Click:</strong> Place Walls</li>
+                        <li><strong>Right Click:</strong> Remove Walls</li>
+                        <li><strong>Spacebar:</strong> Start AI Hunter</li>
+                        <li><strong>R Key:</strong> Reset Game</li>
+                    </ul>
+                    <p class="mission">Objective: Block all paths to yourself so the AI can't find you!</p>
+                </div>
+
+                <div class="algorithm-visual">
+                    <h3>AI Strategy</h3>
+                    <div class="algo-tag">A* Search (Heuristic)</div>
+                    <div class="legend">
+                        <div class="item"><span class="dot hunter"></span> AI Hunter</div>
+                        <div class="item"><span class="dot player"></span> You (Player)</div>
+                        <div class="item"><span class="dot searching"></span> Searching Node</div>
+                        <div class="item"><span class="dot path"></span> Detected Path</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <a href="../index.html" class="back-link">← Back to Menu</a>
+        </footer>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+:root {
+    --bg-color: #0f172a;
+    --panel-bg: #1e293b;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    --hunter-color: #ef4444; /* Dark Red */
+    --player-color: #22c55e; /* Bright Green */
+    --wall-color: #475569;   /* Dark Gray */
+    --path-color: #fbbf24;   /* Gold */
+    --search-color: #a855f7; /* Light Purple */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+header { text-align: center; margin-bottom: 2rem; }
+header h1 span { color: var(--hunter-color); }
+
+.game-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+    background-color: var(--panel-bg);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    height: 750px; /* เพิ่มความสูงคงที่เพื่อให้ดูเต็ม */
+}
+
+.game-container {
+    position: relative;
+    background-color: #1e1e1e;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+.overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.9);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    z-index: 10;
+}
+
+.overlay.hidden { display: none; }
+
+.side-panel {
+    display: flex; flex-direction: column; gap: 2rem;
+}
+
+.stat-box {
+    background: #0f172a;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.stat-box .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+.stat-box .value { display: block; font-size: 1.25rem; font-weight: 700; color: var(--path-color); }
+
+.instructions h3, .algorithm-visual h3 {
+    font-size: 1rem; margin-bottom: 0.75rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem;
+}
+
+.instructions ul { list-style: none; font-size: 0.875rem; color: var(--text-muted); }
+.instructions li { margin-bottom: 0.5rem; }
+.instructions strong { color: var(--text-color); }
+
+.mission {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--hunter-color);
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.legend { display: flex; flex-direction: column; gap: 0.5rem; }
+.item { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; }
+.dot { width: 12px; height: 12px; border-radius: 2px; }
+
+.dot.hunter { background: var(--hunter-color); }
+.dot.player { background: var(--player-color); }
+.dot.searching { background: var(--search-color); }
+.dot.path { background: var(--path-color); }
+
+.back-link { display: block; text-align: center; margin-top: 2rem; color: var(--text-muted); text-decoration: none; }
+.back-link:hover { color: var(--path-color); }

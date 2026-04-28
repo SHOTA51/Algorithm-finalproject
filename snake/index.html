@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake 1v1 Battle - AI Discovery</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Snake <span>1v1 Battle</span></h1>
+            <p>SF231 Vibe Coding with Algorithm Discovery</p>
+        </header>
+
+        <div class="game-wrapper">
+            <div class="stats-panel">
+                <div class="stat-box">
+                    <span class="label">Player Score</span>
+                    <span id="player-score" class="value">000</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Bot Score</span>
+                    <span id="bot-score" class="value">000</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Winner</span>
+                    <span id="game-status" class="value">-</span>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="400" height="400"></canvas>
+                
+                <!-- Initial Start Screen -->
+                <div id="start-screen" class="overlay">
+                    <h2>READY?</h2>
+                    <p>Both snakes start at their lines.</p>
+                    <button id="start-btn">Start Battle</button>
+                </div>
+
+                <!-- Game Over Screen -->
+                <div id="game-over" class="overlay hidden">
+                    <h2 id="winner-announcement">GAME OVER</h2>
+                    <p id="final-score">Press Button to Play Again</p>
+                    <button id="restart-btn">Restart Battle</button>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="settings">
+                    <label for="difficulty">Bot Difficulty</label>
+                    <select id="difficulty" class="styled-select">
+                        <option value="easy">Easy (Greedy)</option>
+                        <option value="medium">Medium (Safe)</option>
+                        <option value="hard" selected>Hard (A* Search)</option>
+                    </select>
+                </div>
+
+                <div class="algorithm-info">
+                    <h3>AI Strategy</h3>
+                    <div id="algo-tag" class="algo-tag">A* Pathfinding</div>
+                    <p id="algo-desc">Finding the optimal path to food while predicting collisions.</p>
+                </div>
+
+                <div class="controls-hint">
+                    <p><strong>Controls:</strong> Arrow Keys or WASD</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.75rem;">Game speed is fixed for balanced 1v1 battle.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <a href="../index.html" class="back-link">← Back to Menu</a>
+        </footer>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
