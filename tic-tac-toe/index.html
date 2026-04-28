@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Advanced Tic-Tac-Toe</h1>
+        
+        <div class="controls">
+            <div class="mode-selection">
+                <button id="pvp-btn" class="mode-btn active">👥 Player vs Player</button>
+                <button id="pvc-btn" class="mode-btn">🤖 Player vs AI</button>
+            </div>
+            
+            <div class="difficulty-selection" style="display: none;">
+                <label>ระดับความยาก:</label>
+                <select id="difficulty">
+                    <option value="easy">🟢 Easy</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="hard">🔴 Hard</option>
+                    <option value="impossible">💀 Impossible</option>
+                </select>
+            </div>
+
+            <div class="starter-selection" style="display: none; margin-top:8px;">
+                <label>เริ่มเกมโดย:</label>
+                <div class="starter-toggle" role="tablist" aria-label="Starter selection">
+                    <button type="button" class="starter-btn active" data-value="player" id="starter-player">ผู้เล่น (X)</button>
+                    <button type="button" class="starter-btn" data-value="ai" id="starter-ai">AI (O)</button>
+                </div>
+                <input type="hidden" id="starter" value="player">
+            </div>
+            
+            <button id="reset-btn" class="btn">🔄 เริ่มเกมใหม่</button>
+        </div>
+
+        <div class="game-info">
+            <div class="current-player">ผู้เล่นปัจจุบัน: <span id="player-turn">X</span></div>
+            <div class="active-board-info" id="board-info">เลือกกระดานใดก็ได้</div>
+        </div>
+
+        <div id="big-board" class="big-board"></div>
+
+        <div id="game-over" class="game-over" style="display: none;">
+            <div class="game-over-content">
+                <h2 id="winner-text"></h2>
+                <button id="play-again-btn" class="btn">เล่นอีกครั้ง</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="../index.html" style="color: white; text-decoration: none; opacity: 0.8;">← กลับสู่หน้าหลัก</a>
+        </div>
+    </div>
+
+        <script src="game.js"></script>
+        <script>
+        (function(){
+            const btnPlayer = document.getElementById('starter-player');
+            const btnAI = document.getElementById('starter-ai');
+            const starterInput = document.getElementById('starter');
+            function setStarter(value){
+                if(!starterInput) return;
+                starterInput.value = value;
+                const event = new Event('change', { bubbles: true });
+                starterInput.dispatchEvent(event);
+                if(btnPlayer && btnAI){
+                    btnPlayer.classList.toggle('active', value==='player');
+                    btnAI.classList.toggle('active', value==='ai');
+                }
+            }
+            if(btnPlayer) btnPlayer.addEventListener('click', ()=> setStarter('player'));
+            if(btnAI) btnAI.addEventListener('click', ()=> setStarter('ai'));
+        })();
+        </script>
+</body>
+</html>

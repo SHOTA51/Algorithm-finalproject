@@ -717,6 +717,12 @@ const Game = () => {
                     ↩️ ย้อนกลับ
                 </button>
             </div>
+
+            <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                <a href="../index.html" style={{ color: '#667eea', textDecoration: 'none', fontWeight: 'bold' }}>
+                    ← กลับสู่หน้าหลัก
+                </a>
+            </div>
         </div>
     );
 };

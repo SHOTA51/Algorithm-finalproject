@@ -132,6 +132,12 @@ function processTick(movePlayer, moveBot) {
     let playerDead = movePlayer && checkSnakeDead(newPlayerHead, playerSnake, botSnake);
     let botDead = moveBot && checkSnakeDead(newBotHead, botSnake, playerSnake);
 
+    // Head-on collision check
+    if (movePlayer && moveBot && newPlayerHead.x === newBotHead.x && newPlayerHead.y === newBotHead.y) {
+        playerDead = true;
+        botDead = true;
+    }
+
     if (playerDead && botDead) { endGame("Draw!"); return; }
     else if (playerDead) { endGame("Bot Wins!"); return; }
     else if (botDead) { endGame("Player Wins!"); return; }

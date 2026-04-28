@@ -26,7 +26,7 @@ let isSearching = false;
 let isGameOver = false;
 let wallsPlacedCount = 0;
 let finalPath = [];
-let searchingNodes = [];
+let searchingNodes = new Set();
 let cellWidth = 0;
 let cellHeight = 0;
 
@@ -74,14 +74,19 @@ function initGrid() {
     playerPos = getRandomEmptyPos();
     aiPos = getRandomEmptyPosWithDistance(playerPos, 15);
 
-    // Ensure spawn points are clear
+    // Ensure spawn points are clear and handle potential null aiPos
+    if (!aiPos) {
+        initGrid();
+        return;
+    }
+
     grid[playerPos.r][playerPos.c].isWall = false;
     grid[playerPos.r][playerPos.c].isFixedWall = false;
     grid[aiPos.r][aiPos.c].isWall = false;
     grid[aiPos.r][aiPos.c].isFixedWall = false;
 
     // Verify Path Existence
-    if (!aiPos || !hasPath(aiPos, playerPos)) {
+    if (!hasPath(aiPos, playerPos)) {
         initGrid();
         return;
     }
@@ -103,7 +108,7 @@ function resetGameState() {
     isGameOver = false;
     isSearching = false;
     finalPath = [];
-    searchingNodes = [];
+    searchingNodes = new Set();
     playerPos = { ...initialPlayerPos };
     aiPos = { ...initialAiPos };
     
@@ -206,7 +211,7 @@ async function startAiHunter() {
             return;
         }
         closedSet.add(`${current.r},${current.c}`);
-        searchingNodes.push(current);
+        searchingNodes.add(current);
 
         for (let neighbor of getNeighbors(current)) {
             if (neighbor.isWall || closedSet.has(`${neighbor.r},${neighbor.c}`)) continue;
@@ -219,7 +224,7 @@ async function startAiHunter() {
                 if (!openSet.includes(neighbor)) openSet.push(neighbor);
             }
         }
-        if (searchingNodes.length % 10 === 0) {
+        if (searchingNodes.size % 10 === 0) {
             render();
             await new Promise(r => setTimeout(r, 1));
         }
@@ -278,7 +283,7 @@ function render() {
             if (node.isFixedWall) color = "#334155"; // สีเข้มสำหรับกำแพงสุ่มในแมพ
             else if (node.isWall) color = "#cbd5e1"; // สีสว่างสำหรับกำแพงที่ผู้เล่นวาง
             
-            if (searchingNodes.includes(node)) color = "rgba(168, 85, 247, 0.15)";
+            if (searchingNodes.has(node)) color = "rgba(168, 85, 247, 0.15)";
             ctx.fillStyle = color;
             ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
 
