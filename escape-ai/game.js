@@ -3,7 +3,7 @@
  */
 
 const GRID_SIZE = 30; // ขยายขนาด Grid ให้เต็มตาขึ้น
-const MAX_WALL_BUDGET = 7; 
+let maxWallBudget = 7; 
 const OBSTACLE_DENSITY = 0.12; 
 
 const canvas = document.getElementById('gameCanvas');
@@ -12,10 +12,16 @@ const statusOverlay = document.getElementById('status-overlay');
 const statusText = document.getElementById('status-text');
 const stateValue = document.getElementById('game-state-text');
 const wallsLeftEl = document.getElementById('walls-left');
+const startBtn = document.getElementById('start-btn');
+const retryBtn = document.getElementById('retry-btn');
+const nextBtn = document.getElementById('next-btn');
 
 let grid = [];
 let aiPos = { r: 0, c: 0 };
 let playerPos = { r: 0, c: 0 };
+let initialAiPos = { r: 0, c: 0 };
+let initialPlayerPos = { r: 0, c: 0 };
+let initialFixedWalls = []; // Store coordinates of fixed walls
 let isSearching = false;
 let isGameOver = false;
 let wallsPlacedCount = 0;
@@ -37,14 +43,16 @@ class Node {
 
 function resizeCanvas() {
     const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    cellSize = canvas.width / GRID_SIZE;
+    const size = Math.min(container.clientWidth, container.clientHeight);
+    canvas.width = size;
+    canvas.height = size;
+    cellSize = size / GRID_SIZE;
 }
 
 function initGrid() {
     resizeCanvas();
     grid = [];
+    initialFixedWalls = [];
     for (let r = 0; r < GRID_SIZE; r++) {
         grid[r] = [];
         for (let c = 0; c < GRID_SIZE; c++) {
@@ -58,6 +66,7 @@ function initGrid() {
         let c = Math.floor(Math.random() * GRID_SIZE);
         grid[r][c].isWall = true;
         grid[r][c].isFixedWall = true;
+        initialFixedWalls.push({r, c});
     }
 
     // 2. Truly Random Spawning (with distance check)
@@ -76,15 +85,49 @@ function initGrid() {
         return;
     }
 
+    // Save initial state for retry
+    initialPlayerPos = { ...playerPos };
+    initialAiPos = { ...aiPos };
+
+    // Randomize Wall Budget (6 to 10)
+    const dist = getDistance(playerPos, aiPos);
+    const baseBudget = dist > 25 ? 7 : 6;
+    maxWallBudget = Math.floor(Math.random() * 4) + baseBudget; 
+
+    resetGameState();
+}
+
+function resetGameState() {
     wallsPlacedCount = 0;
     isGameOver = false;
     isSearching = false;
     finalPath = [];
     searchingNodes = [];
+    playerPos = { ...initialPlayerPos };
+    aiPos = { ...initialAiPos };
+    
+    // Reset grid walls (keep only fixed ones)
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            if (!grid[r][c].isFixedWall) {
+                grid[r][c].isWall = false;
+            }
+        }
+    }
+
     statusOverlay.classList.add('hidden');
     stateValue.textContent = "BUILDING";
+    startBtn.disabled = false;
     updateWallUI();
     render();
+}
+
+function retryLevel() {
+    resetGameState();
+}
+
+function nextLevel() {
+    initGrid();
 }
 
 function getRandomEmptyPos() {
@@ -126,12 +169,13 @@ function hasPath(start, end) {
 }
 
 function updateWallUI() {
-    wallsLeftEl.textContent = MAX_WALL_BUDGET - wallsPlacedCount;
+    wallsLeftEl.textContent = maxWallBudget - wallsPlacedCount;
 }
 
 async function startAiHunter() {
     if (isSearching || isGameOver) return;
     isSearching = true;
+    startBtn.disabled = true;
     stateValue.textContent = "HUNTING...";
     let openSet = [];
     let closedSet = new Set();
@@ -236,6 +280,20 @@ function render() {
             if (searchingNodes.includes(node)) color = "rgba(168, 85, 247, 0.15)";
             ctx.fillStyle = color;
             ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+
+            // Highlight restricted zones around player and hunter
+            if (!isSearching && !isGameOver) {
+                const isNearPlayer = Math.abs(r - playerPos.r) <= 1 && Math.abs(c - playerPos.c) <= 1;
+                const isNearHunter = Math.abs(r - aiPos.r) <= 1 && Math.abs(c - aiPos.c) <= 1;
+
+                if (isNearPlayer) {
+                    ctx.fillStyle = "rgba(34, 197, 94, 0.1)"; // Subtle green for player zone
+                    ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                } else if (isNearHunter) {
+                    ctx.fillStyle = "rgba(239, 68, 68, 0.1)"; // Subtle red for hunter zone
+                    ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                }
+            }
         }
     }
     if (finalPath.length > 0) {
@@ -277,7 +335,7 @@ canvas.addEventListener('mousedown', (e) => {
         if (node.isFixedWall || (r === aiPos.r && c === aiPos.c) || isNearPlayer || isNearHunter) return;
 
         if (e.button === 0 && !node.isWall) {
-            if (wallsPlacedCount < MAX_WALL_BUDGET) { node.isWall = true; wallsPlacedCount++; }
+            if (wallsPlacedCount < maxWallBudget) { node.isWall = true; wallsPlacedCount++; }
         } else if (e.button === 2 && node.isWall) {
             node.isWall = false; wallsPlacedCount--;
         }
@@ -286,9 +344,13 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+startBtn.addEventListener('click', startAiHunter);
+retryBtn.addEventListener('click', retryLevel);
+nextBtn.addEventListener('click', nextLevel);
+
 window.addEventListener('keydown', (e) => {
     if (e.code === 'Space') startAiHunter();
-    if (e.code === 'KeyR') initGrid();
 });
 
 window.addEventListener('resize', () => {

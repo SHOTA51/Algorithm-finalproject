@@ -21,7 +21,10 @@
                 <canvas id="gameCanvas" width="600" height="600"></canvas>
                 <div id="status-overlay" class="overlay hidden">
                     <h2 id="status-text">PLAYER WINS!</h2>
-                    <button id="play-again-btn" class="primary-btn" style="margin-top: 1rem; width: auto; padding: 0.75rem 2rem;">Play Again</button>
+                    <div class="button-group">
+                        <button id="retry-btn" class="secondary-btn">Retry Level</button>
+                        <button id="next-btn" class="primary-btn">Next Level</button>
+                    </div>
                 </div>
             </div>
 
@@ -35,6 +38,7 @@
                         <span class="label">Walls Left</span>
                         <span id="walls-left" class="value">10</span>
                     </div>
+                    <button id="start-btn" class="primary-btn">START HUNT</button>
                 </div>
 
                 <div class="instructions">
@@ -42,15 +46,13 @@
                     <ul>
                         <li><strong>Left Click:</strong> Place Walls</li>
                         <li><strong>Right Click:</strong> Remove Walls</li>
-                        <li><strong>Spacebar:</strong> Start AI Hunter</li>
-                        <li><strong>R Key:</strong> Reset Game</li>
+                        <li><strong>Start Hunt:</strong> Click button or Spacebar</li>
                     </ul>
                     <p class="mission">Objective: Block all paths to yourself so the AI can't find you!</p>
                 </div>
 
                 <div class="algorithm-visual">
                     <h3>AI Strategy</h3>
-                    <div class="algo-tag">A* Search (Heuristic)</div>
                     <div class="legend">
                         <div class="item"><span class="dot hunter"></span> AI Hunter</div>
                         <div class="item"><span class="dot player"></span> You (Player)</div>
