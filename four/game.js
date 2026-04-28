@@ -536,6 +536,7 @@ const Game = () => {
     const [winningCells, setWinningCells] = useState(null);
     const [gameMode, setGameMode] = useState('pvp'); // 'pvp' or 'ai'
     const [difficulty, setDifficulty] = useState('medium');
+    const [starter, setStarter] = useState('player'); // 'player' or 'ai'
     const [history, setHistory] = useState([]);
     const [isAIThinking, setIsAIThinking] = useState(false);
 
@@ -575,7 +576,8 @@ const Game = () => {
 
     const handleRestart = () => {
         setBoard(createBoard());
-        setCurrentPlayer(PLAYER1);
+        // Set starter based on mode and starter selection
+        setCurrentPlayer(gameMode === 'ai' && starter === 'ai' ? PLAYER2 : PLAYER1);
         setGameOver(false);
         setWinner(null);
         setWinningCells(null);
@@ -596,8 +598,15 @@ const Game = () => {
     };
 
     const handleModeChange = (mode) => {
+        // Change mode and restart the game with appropriate starter
         setGameMode(mode);
-        handleRestart();
+        setBoard(createBoard());
+        setGameOver(false);
+        setWinner(null);
+        setWinningCells(null);
+        setHistory([]);
+        setIsAIThinking(false);
+        setCurrentPlayer(mode === 'ai' && starter === 'ai' ? PLAYER2 : PLAYER1);
     };
 
     const getStatusMessage = () => {
@@ -660,6 +669,27 @@ const Game = () => {
                         >
                             💀 โหดมาก (ชนะไม่ได้)
                         </button>
+                    </div>
+                )}
+                {gameMode === 'ai' && (
+                    <div className="starter-selector">
+                        <span className="starter-label">เริ่มก่อน:</span>
+                        <div className="starter-toggle" role="tablist" aria-label="เลือกผู้เริ่มเกม">
+                            <button
+                                className={`starter-btn ${starter === 'player' ? 'active' : ''}`}
+                                onClick={() => { setStarter('player'); handleRestart(); }}
+                                aria-pressed={starter === 'player'}
+                            >
+                                👤 คุณ
+                            </button>
+                            <button
+                                className={`starter-btn ${starter === 'ai' ? 'active' : ''}`}
+                                onClick={() => { setStarter('ai'); handleRestart(); }}
+                                aria-pressed={starter === 'ai'}
+                            >
+                                🤖 AI
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

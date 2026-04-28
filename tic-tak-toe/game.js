@@ -21,16 +21,29 @@ const pvpBtn = document.getElementById('pvp-btn');
 const pvcBtn = document.getElementById('pvc-btn');
 const difficultySelect = document.getElementById('difficulty');
 const difficultySelection = document.querySelector('.difficulty-selection');
+const starterSelect = document.getElementById('starter');
+const starterSelection = document.querySelector('.starter-selection');
 
 // Initialize Game
 function initGame() {
     game.bigBoard = Array(9).fill(null);
     game.subBoards = Array(9).fill(null).map(() => Array(9).fill(null));
-    game.currentPlayer = 'X';
+    // Determine starting player based on mode and starter selection
+    if (game.gameMode === 'pvc') {
+        const starter = starterSelect ? starterSelect.value : 'player';
+        game.currentPlayer = starter === 'ai' ? 'O' : 'X';
+    } else {
+        game.currentPlayer = 'X';
+    }
     game.activeBoard = null;
     game.gameOver = false;
     renderBoard();
     updateUI();
+
+    // If AI should start, make its move
+    if (game.gameMode === 'pvc' && game.currentPlayer === 'O' && !game.gameOver) {
+        setTimeout(makeAIMove, 500);
+    }
 }
 
 // Render Board
@@ -750,6 +763,7 @@ pvpBtn.addEventListener('click', () => {
     pvpBtn.classList.add('active');
     pvcBtn.classList.remove('active');
     difficultySelection.style.display = 'none';
+    if (starterSelection) starterSelection.style.display = 'none';
     initGame();
 });
 
@@ -758,6 +772,7 @@ pvcBtn.addEventListener('click', () => {
     pvcBtn.classList.add('active');
     pvpBtn.classList.remove('active');
     difficultySelection.style.display = 'block';
+    if (starterSelection) starterSelection.style.display = 'block';
     initGame();
 });
 
@@ -765,6 +780,12 @@ difficultySelect.addEventListener('change', (e) => {
     game.difficulty = e.target.value;
     initGame();
 });
+
+if (starterSelect) {
+    starterSelect.addEventListener('change', () => {
+        initGame();
+    });
+}
 
 // Start Game
 initGame();

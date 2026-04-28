@@ -78,6 +78,36 @@ h1 {
     font-size: 14px;
 }
 
+/* Starter toggle styles */
+.starter-selection {
+    margin-bottom: 6px;
+}
+.starter-toggle {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+.starter-btn {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 2px solid #e6e6f2;
+    background: linear-gradient(180deg,#ffffff,#f7f8ff);
+    cursor: pointer;
+    font-weight: 700;
+    color: #333;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.starter-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(102,126,234,0.12);
+}
+.starter-btn.active {
+    background: linear-gradient(180deg,#667eea,#5a3a7a);
+    color: #fff;
+    border-color: #667eea;
+    box-shadow: 0 10px 24px rgba(102,126,234,0.28);
+}
+
 .btn {
     width: 100%;
     padding: 12px;

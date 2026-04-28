@@ -25,6 +25,15 @@
                     <option value="impossible">💀 Impossible</option>
                 </select>
             </div>
+
+            <div class="starter-selection" style="display: none; margin-top:8px;">
+                <label>เริ่มเกมโดย:</label>
+                <div class="starter-toggle" role="tablist" aria-label="Starter selection">
+                    <button type="button" class="starter-btn active" data-value="player" id="starter-player">ผู้เล่น (X)</button>
+                    <button type="button" class="starter-btn" data-value="ai" id="starter-ai">AI (O)</button>
+                </div>
+                <input type="hidden" id="starter" value="player">
+            </div>
             
             <button id="reset-btn" class="btn">🔄 เริ่มเกมใหม่</button>
         </div>
@@ -44,6 +53,25 @@
         </div>
     </div>
 
-    <script src="game.js"></script>
+        <script src="game.js"></script>
+        <script>
+        (function(){
+            const btnPlayer = document.getElementById('starter-player');
+            const btnAI = document.getElementById('starter-ai');
+            const starterInput = document.getElementById('starter');
+            function setStarter(value){
+                if(!starterInput) return;
+                starterInput.value = value;
+                const event = new Event('change', { bubbles: true });
+                starterInput.dispatchEvent(event);
+                if(btnPlayer && btnAI){
+                    btnPlayer.classList.toggle('active', value==='player');
+                    btnAI.classList.toggle('active', value==='ai');
+                }
+            }
+            if(btnPlayer) btnPlayer.addEventListener('click', ()=> setStarter('player'));
+            if(btnAI) btnAI.addEventListener('click', ()=> setStarter('ai'));
+        })();
+        </script>
 </body>
 </html>
