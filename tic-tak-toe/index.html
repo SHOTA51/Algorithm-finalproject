@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Advanced Tic-Tac-Toe</h1>
+        
+        <div class="controls">
+            <div class="mode-selection">
+                <button id="pvp-btn" class="mode-btn active">👥 Player vs Player</button>
+                <button id="pvc-btn" class="mode-btn">🤖 Player vs AI</button>
+            </div>
+            
+            <div class="difficulty-selection" style="display: none;">
+                <label>ระดับความยาก:</label>
+                <select id="difficulty">
+                    <option value="easy">🟢 Easy</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="hard">🔴 Hard</option>
+                    <option value="impossible">💀 Impossible</option>
+                </select>
+            </div>
+            
+            <button id="reset-btn" class="btn">🔄 เริ่มเกมใหม่</button>
+        </div>
+
+        <div class="game-info">
+            <div class="current-player">ผู้เล่นปัจจุบัน: <span id="player-turn">X</span></div>
+            <div class="active-board-info" id="board-info">เลือกกระดานใดก็ได้</div>
+        </div>
+
+        <div id="big-board" class="big-board"></div>
+
+        <div id="game-over" class="game-over" style="display: none;">
+            <div class="game-over-content">
+                <h2 id="winner-text"></h2>
+                <button id="play-again-btn" class="btn">เล่นอีกครั้ง</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
