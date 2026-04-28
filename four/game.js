@@ -610,19 +610,11 @@ const Game = () => {
     };
 
     const getStatusMessage = () => {
-        if (winner) {
-            return winner === PLAYER1 ? '🎉 ผู้เล่น 1 (แดง) ชนะ!' : '🎉 ผู้เล่น 2 (เหลือง) ชนะ!';
-        }
-        if (gameOver) {
-            return '🤝 เสมอกัน!';
-        }
-        if (isAIThinking) {
-            return '🤖 AI กำลังคิด...';
-        }
-        if (gameMode === 'ai') {
-            return currentPlayer === PLAYER1 ? '🔴 ตาของคุณ' : '🤖 ตาของ AI';
-        }
-        return currentPlayer === PLAYER1 ? '🔴 ตาผู้เล่น 1 (แดง)' : '🟡 ตาผู้เล่น 2 (เหลือง)';
+        if (winner) return winner === PLAYER1 ? '🎉 Player 1 (Red) Wins!' : '🎉 Player 2 (Yellow) Wins!';
+        if (gameOver) return '🤝 It\'s a Draw!';
+        if (isAIThinking) return '🤖 AI is thinking...';
+        if (gameMode === 'ai') return currentPlayer === PLAYER1 ? '🔴 Your Turn' : '🤖 AI\'s Turn';
+        return currentPlayer === PLAYER1 ? '🔴 Player 1\'s Turn' : '🟡 Player 2\'s Turn';
     };
 
     const getStatusClass = () => {
@@ -633,20 +625,24 @@ const Game = () => {
 
     return (
         <div className="game-container">
-            <div className="game-header">
-                <h1>🎮 เกมเรียง 4</h1>
+            <header className="game-header">
+                <h1>Connect <span>Four</span></h1>
+                <p>Strategic Move Prediction & Logic Analysis</p>
+            </header>
+
+            <div className="game-content-top">
                 <div className="game-mode">
                     <button 
                         className={`mode-btn ${gameMode === 'pvp' ? 'active' : ''}`}
                         onClick={() => handleModeChange('pvp')}
                     >
-                        👥 2 ผู้เล่น
+                        👥 2 Players
                     </button>
                     <button 
                         className={`mode-btn ${gameMode === 'ai' ? 'active' : ''}`}
                         onClick={() => handleModeChange('ai')}
                     >
-                        🤖 เล่นกับ AI
+                        🤖 Play vs AI
                     </button>
                 </div>
                 {gameMode === 'ai' && (
@@ -655,32 +651,32 @@ const Game = () => {
                             className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
                             onClick={() => setDifficulty('easy')}
                         >
-                            😊 ง่าย
+                            😊 Easy
                         </button>
                         <button 
                             className={`difficulty-btn ${difficulty === 'medium' ? 'active' : ''}`}
                             onClick={() => setDifficulty('medium')}
                         >
-                            😐 ปานกลาง
+                            😐 Medium
                         </button>
                         <button 
                             className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
                             onClick={() => setDifficulty('hard')}
                         >
-                            💀 โหดมาก (ชนะไม่ได้)
+                            💀 Unbeatable
                         </button>
                     </div>
                 )}
                 {gameMode === 'ai' && (
                     <div className="starter-selector">
-                        <span className="starter-label">เริ่มก่อน:</span>
-                        <div className="starter-toggle" role="tablist" aria-label="เลือกผู้เริ่มเกม">
+                        <span className="starter-label">Starting Player:</span>
+                        <div className="starter-toggle" role="tablist" aria-label="Select starting player">
                             <button
                                 className={`starter-btn ${starter === 'player' ? 'active' : ''}`}
                                 onClick={() => { setStarter('player'); handleRestart(); }}
                                 aria-pressed={starter === 'player'}
                             >
-                                👤 คุณ
+                                👤 You
                             </button>
                             <button
                                 className={`starter-btn ${starter === 'ai' ? 'active' : ''}`}
@@ -707,22 +703,24 @@ const Game = () => {
 
             <div className="game-controls">
                 <button className="control-btn restart-btn" onClick={handleRestart}>
-                    🔄 เริ่มใหม่
+                    🔄 Restart
                 </button>
                 <button 
                     className="control-btn undo-btn" 
                     onClick={handleUndo}
                     disabled={history.length === 0 || isAIThinking}
                 >
-                    ↩️ ย้อนกลับ
+                    ↩️ Undo
                 </button>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                <a href="../index.html" style={{ color: '#667eea', textDecoration: 'none', fontWeight: 'bold' }}>
-                    ← กลับสู่หน้าหลัก
-                </a>
-            </div>
+            <a href="../index.html" className="menu-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Return to Menu
+            </a>
         </div>
     );
 };

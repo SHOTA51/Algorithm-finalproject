@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameHub | Algorithm Discovery</title>
+    <title>AuAI | GameHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -102,66 +102,100 @@
 
         .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            grid-template-columns: repeat(12, 1fr);
             gap: 2rem;
+            align-items: start;
         }
 
         .game-card {
             background-color: var(--panel-bg);
             border: 1px solid var(--card-border);
-            border-radius: 1.5rem;
-            padding: 3rem 2.5rem;
+            border-radius: 2.5rem;
+            padding: 3rem;
             text-decoration: none;
             color: inherit;
-            transition: all var(--transition-speed) cubic-bezier(0.23, 1, 0.32, 1);
+            transition: all var(--transition-speed) cubic-bezier(0.2, 1, 0.2, 1);
             display: flex;
             flex-direction: column;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(16px);
+        }
+
+        /* Bento Spans & Staggering */
+        .game-card:nth-child(1) { 
+            grid-column: span 8; 
+            min-height: 450px;
+        }
+        .game-card:nth-child(2) { 
+            grid-column: span 4; 
+            margin-top: 4rem;
+            min-height: 400px;
+        }
+        .game-card:nth-child(3) { 
+            grid-column: span 4; 
+            margin-top: -2rem;
+            min-height: 400px;
+        }
+        .game-card:nth-child(4) { 
+            grid-column: span 8; 
+            min-height: 450px;
+            margin-top: 2rem;
         }
 
         .game-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            border-color: var(--accent-color);
+            transform: translateY(-15px);
+            border-color: rgba(59, 130, 246, 0.3);
             background-color: var(--panel-hover);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
         }
 
         .game-card .icon-wrapper {
-            width: 64px;
-            height: 64px;
+            width: 80px;
+            height: 80px;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 1.25rem;
+            border-radius: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 2.5rem;
-            transition: all var(--transition-speed);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 1;
+            animation: floatIcon 4s infinite ease-in-out;
         }
 
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .game-card:nth-child(2) .icon-wrapper { animation-delay: -1s; }
+        .game-card:nth-child(3) .icon-wrapper { animation-delay: -2s; }
+        .game-card:nth-child(4) .icon-wrapper { animation-delay: -3s; }
+
         .game-card:hover .icon-wrapper {
-            transform: rotate(-10deg);
+            transform: rotate(-12deg) scale(1.15) !important;
             background: var(--accent-color);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
             border-color: transparent;
         }
 
         .game-card h2 {
-            font-size: 1.85rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            letter-spacing: -0.5px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+            line-height: 1.1;
         }
 
         .game-card p {
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
-            margin-bottom: 2.5rem;
-            flex-grow: 1;
-            font-weight: 300;
-            line-height: 1.7;
+            margin-bottom: 3rem;
+            max-width: 90%;
         }
 
         .card-footer {
@@ -203,9 +237,15 @@
             transform: translateX(0);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             header h1 { font-size: 3.5rem; }
             .game-grid { grid-template-columns: 1fr; }
+            .game-card:nth-child(n) { 
+                grid-column: span 1; 
+                margin-top: 0;
+                min-height: auto;
+                padding: 2.5rem 2rem;
+            }
             body { padding: 3rem 1.5rem; }
         }
     </style>

@@ -17,8 +17,6 @@ const retryBtn = document.getElementById('retry-btn');
 const nextBtn = document.getElementById('next-btn');
 
 let grid = [];
-let aiPos = { r: 0, c: 0 };
-let playerPos = { r: 0, c: 0 };
 let initialAiPos = { r: 0, c: 0 };
 let initialPlayerPos = { r: 0, c: 0 };
 let initialFixedWalls = []; // Store coordinates of fixed walls
@@ -85,7 +83,7 @@ function initGrid() {
     grid[aiPos.r][aiPos.c].isWall = false;
     grid[aiPos.r][aiPos.c].isFixedWall = false;
 
-    // Verify Path Existence
+    // Verify Initial Path Existence
     if (!hasPath(aiPos, playerPos)) {
         initGrid();
         return;
@@ -100,7 +98,81 @@ function initGrid() {
     const baseBudget = dist > 25 ? 7 : 6;
     maxWallBudget = Math.floor(Math.random() * 4) + baseBudget; 
 
+    // Winnability Check: Ensure the Min-Cut (minimum nodes to block) is <= maxWallBudget
+    if (!isLevelWinnable(aiPos, playerPos, maxWallBudget)) {
+        console.log("Level unwinnable, regenerating...");
+        initGrid();
+        return;
+    }
+
     resetGameState();
+}
+
+/**
+ * Uses BFS to find the minimum number of nodes required to disconnect AI from Player.
+ * If this number > budget, the level is "unwinnable" for a standard player.
+ */
+function isLevelWinnable(start, end, budget) {
+    const startNode = grid[start.r][start.c];
+    const endNode = grid[end.r][end.c];
+    
+    // Simple Min-Cut approximation for grid:
+    // We check how many independent paths exist.
+    // If the "bottleneck" width of the map is greater than the budget, it's unwinnable.
+    
+    let tempGrid = grid.map(row => row.map(node => ({ ...node })));
+    let pathsFound = 0;
+    
+    // We try to find 'budget + 1' paths. 
+    // If we find them, and each path requires a unique node to be blocked,
+    // and we run out of budget, it's too hard.
+    while (pathsFound <= budget) {
+        let path = findAnyPath(start, end, tempGrid);
+        if (!path) return true; // Disconnected! Definitely winnable.
+        
+        pathsFound++;
+        if (pathsFound > budget) return false; // Too many paths to block
+        
+        // "Block" this path by turning a node on it into a wall for the next search
+        // We pick a node that isn't the start or end
+        let blockNode = path.find(n => 
+            !(n.r === start.r && n.c === start.c) && 
+            !(n.r === end.r && n.c === end.c)
+        );
+        if (blockNode) {
+            tempGrid[blockNode.r][blockNode.c].isWall = true;
+        } else {
+            break;
+        }
+    }
+    
+    return true;
+}
+
+function findAnyPath(start, end, customGrid) {
+    let queue = [[start]];
+    let visited = new Set();
+    visited.add(`${start.r},${start.c}`);
+    
+    while (queue.length > 0) {
+        let path = queue.shift();
+        let curr = path[path.length - 1];
+        
+        if (curr.r === end.r && curr.c === end.c) return path;
+        
+        const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+        for (let [dr, dc] of dirs) {
+            let nr = curr.r + dr, nc = curr.c + dc;
+            if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE) {
+                let neighbor = customGrid[nr][nc];
+                if (!neighbor.isWall && !visited.has(`${nr},${nc}`)) {
+                    visited.add(`${nr},${nc}`);
+                    queue.push([...path, { r: nr, c: nc }]);
+                }
+            }
+        }
+    }
+    return null;
 }
 
 function resetGameState() {

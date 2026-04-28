@@ -377,18 +377,37 @@ footer {
     text-align: center;
 }
 
-.back-link {
+.menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.75rem 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
     color: var(--text-muted);
     text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    margin-top: 1rem;
 }
 
-.back-link:hover {
+.menu-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-color);
     color: var(--text-main);
-    letter-spacing: 2px;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
+.menu-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s;
+}
+
+.menu-btn:hover svg {
+    transform: translateX(-4px);
+}
