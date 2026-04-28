@@ -623,6 +623,8 @@ const Game = () => {
         return `player${currentPlayer}`;
     };
 
+    const isGameInPlay = history.length > 0 && !gameOver;
+
     return (
         <div className="game-container">
             <header className="game-header">
@@ -635,12 +637,14 @@ const Game = () => {
                     <button 
                         className={`mode-btn ${gameMode === 'pvp' ? 'active' : ''}`}
                         onClick={() => handleModeChange('pvp')}
+                        disabled={isGameInPlay}
                     >
                         👥 2 Players
                     </button>
                     <button 
                         className={`mode-btn ${gameMode === 'ai' ? 'active' : ''}`}
                         onClick={() => handleModeChange('ai')}
+                        disabled={isGameInPlay}
                     >
                         🤖 Play vs AI
                     </button>
@@ -650,18 +654,21 @@ const Game = () => {
                         <button 
                             className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
                             onClick={() => setDifficulty('easy')}
+                            disabled={isGameInPlay}
                         >
                             😊 Easy
                         </button>
                         <button 
                             className={`difficulty-btn ${difficulty === 'medium' ? 'active' : ''}`}
                             onClick={() => setDifficulty('medium')}
+                            disabled={isGameInPlay}
                         >
                             😐 Medium
                         </button>
                         <button 
                             className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
                             onClick={() => setDifficulty('hard')}
+                            disabled={isGameInPlay}
                         >
                             💀 Unbeatable
                         </button>
@@ -675,6 +682,7 @@ const Game = () => {
                                 className={`starter-btn ${starter === 'player' ? 'active' : ''}`}
                                 onClick={() => { setStarter('player'); handleRestart(); }}
                                 aria-pressed={starter === 'player'}
+                                disabled={isGameInPlay}
                             >
                                 👤 You
                             </button>
@@ -682,6 +690,7 @@ const Game = () => {
                                 className={`starter-btn ${starter === 'ai' ? 'active' : ''}`}
                                 onClick={() => { setStarter('ai'); handleRestart(); }}
                                 aria-pressed={starter === 'ai'}
+                                disabled={isGameInPlay}
                             >
                                 🤖 AI
                             </button>

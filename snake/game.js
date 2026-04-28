@@ -63,6 +63,7 @@ function init() {
     generateFood(); 
     playerScore = 0; botScore = 0;
     isGameOver = false;
+    difficultySelect.disabled = false; // Unlock difficulty
     botDifficulty = difficultySelect.value;
     updateUI();
     render();
@@ -73,6 +74,7 @@ function startGame() {
     gameStarted = true;
     startScreen.classList.add('hidden');
     gameOverOverlay.classList.add('hidden');
+    difficultySelect.disabled = true; // Lock difficulty
     
     if (gameTimeout) clearTimeout(gameTimeout);
     gameLoop();
@@ -129,13 +131,56 @@ function processTick(movePlayer, moveBot) {
     const newPlayerHead = { x: playerSnake[0].x + playerDx, y: playerSnake[0].y + playerDy };
     const newBotHead = { x: botSnake[0].x + botDx, y: botSnake[0].y + botDy };
 
-    let playerDead = movePlayer && checkSnakeDead(newPlayerHead, playerSnake, botSnake);
-    let botDead = moveBot && checkSnakeDead(newBotHead, botSnake, playerSnake);
+    // Check food BEFORE movement to know if tails will grow
+    const playerEats = movePlayer && foods.some(f => f.x === newPlayerHead.x && f.y === newPlayerHead.y);
+    const botEats = moveBot && foods.some(f => f.x === newBotHead.x && f.y === newBotHead.y);
 
-    // Head-on collision check
+    let playerDead = false;
+    let botDead = false;
+
+    // 1. Wall Collisions
+    if (movePlayer) {
+        if (newPlayerHead.x < 0 || newPlayerHead.x >= TILE_COUNT || newPlayerHead.y < 0 || newPlayerHead.y >= TILE_COUNT) {
+            playerDead = true;
+        }
+    }
+    if (moveBot) {
+        if (newBotHead.x < 0 || newBotHead.x >= TILE_COUNT || newBotHead.y < 0 || newBotHead.y >= TILE_COUNT) {
+            botDead = true;
+        }
+    }
+
+    // 2. Head-on Collision
     if (movePlayer && moveBot && newPlayerHead.x === newBotHead.x && newPlayerHead.y === newBotHead.y) {
         playerDead = true;
         botDead = true;
+    }
+
+    // 3. Body Collisions (Account for tail movement)
+    if (movePlayer && !playerDead) {
+        // Check against own body (excluding current tail if not growing)
+        const pCheckLimit = playerEats ? playerSnake.length : playerSnake.length - 1;
+        for (let i = 0; i < pCheckLimit; i++) {
+            if (newPlayerHead.x === playerSnake[i].x && newPlayerHead.y === playerSnake[i].y) playerDead = true;
+        }
+        // Check against bot body (excluding its future tail position if it's moving)
+        const bCheckLimit = (moveBot && !botEats) ? botSnake.length - 1 : botSnake.length;
+        for (let i = 0; i < bCheckLimit; i++) {
+            if (newPlayerHead.x === botSnake[i].x && newPlayerHead.y === botSnake[i].y) playerDead = true;
+        }
+    }
+
+    if (moveBot && !botDead) {
+        // Check against own body (excluding current tail if not growing)
+        const bCheckLimit = botEats ? botSnake.length : botSnake.length - 1;
+        for (let i = 0; i < bCheckLimit; i++) {
+            if (newBotHead.x === botSnake[i].x && newBotHead.y === botSnake[i].y) botDead = true;
+        }
+        // Check against player body (excluding its future tail position if it's moving)
+        const pCheckLimit = (movePlayer && !playerEats) ? playerSnake.length - 1 : playerSnake.length;
+        for (let i = 0; i < pCheckLimit; i++) {
+            if (newBotHead.x === playerSnake[i].x && newBotHead.y === playerSnake[i].y) botDead = true;
+        }
     }
 
     if (playerDead && botDead) { endGame("Draw!"); return; }
@@ -146,9 +191,9 @@ function processTick(movePlayer, moveBot) {
 
     if (movePlayer) {
         playerSnake.unshift(newPlayerHead);
-        const foodIdx = foods.findIndex(f => f.x === newPlayerHead.x && f.y === newPlayerHead.y);
-        if (foodIdx !== -1) {
+        if (playerEats) {
             playerScore += 10;
+            const foodIdx = foods.findIndex(f => f.x === newPlayerHead.x && f.y === newPlayerHead.y);
             foods.splice(foodIdx, 1);
             updateUIFlag = true;
         } else {
@@ -166,9 +211,9 @@ function processTick(movePlayer, moveBot) {
 
     if (moveBot) {
         botSnake.unshift(newBotHead);
-        const foodIdx = foods.findIndex(f => f.x === newBotHead.x && f.y === newBotHead.y);
-        if (foodIdx !== -1) {
+        if (botEats) {
             botScore += 10;
+            const foodIdx = foods.findIndex(f => f.x === newBotHead.x && f.y === newBotHead.y);
             foods.splice(foodIdx, 1);
             updateUIFlag = true;
         } else {
@@ -193,13 +238,6 @@ function processTick(movePlayer, moveBot) {
 }
 
 function checkSnakeDead(head, ownBody, otherBody) {
-    if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT) return true;
-    for (let i = 0; i < ownBody.length; i++) {
-        if (head.x === ownBody[i].x && head.y === ownBody[i].y) return true;
-    }
-    for (let i = 0; i < otherBody.length; i++) {
-        if (head.x === otherBody[i].x && head.y === otherBody[i].y) return true;
-    }
     return false;
 }
 
@@ -288,7 +326,10 @@ function moveHard(target) {
         botDy = nextStep.y - start.y;
     } else {
         const move = getSafeMove(botSnake, playerSnake);
-        if (move) { botDx = move.x - start.x; botDy = move.y - start.y; }
+        if (move) { 
+            botDx = move.x - start.x; 
+            botDy = move.y - start.y; 
+        }
     }
     algoTag.textContent = "A* Hunter Search";
     algoDesc.textContent = "Calculating efficient paths to intercept the player or food.";
@@ -304,7 +345,10 @@ function moveImpossible(target) {
         botDy = nextStep.y - start.y;
     } else {
         const move = getSafeMove(botSnake, playerSnake);
-        if (move) { botDx = move.x - start.x; botDy = move.y - start.y; }
+        if (move) { 
+            botDx = move.x - start.x; 
+            botDy = move.y - start.y; 
+        }
     }
     algoTag.textContent = "Lethal Predation";
     algoDesc.textContent = "Executing near-perfect interception vectors. Escape is unlikely.";
@@ -316,10 +360,29 @@ function getBasicNeighbors(pos) {
 }
 
 function getSafeNeighbors(pos, ownBody, otherBody) {
+    const isBot = (ownBody === botSnake);
     return getBasicNeighbors(pos).filter(n => {
         if (n.x < 0 || n.x >= TILE_COUNT || n.y < 0 || n.y >= TILE_COUNT) return false;
-        if (ownBody.some(p => p.x === n.x && p.y === n.y)) return false;
-        if (otherBody.some(p => p.x === n.x && p.y === n.y)) return false;
+        
+        // If we eat, our tail stays. If not, it moves.
+        const willEat = foods.some(f => f.x === n.x && f.y === n.y);
+        const ownLimit = willEat ? ownBody.length : ownBody.length - 1;
+        for (let i = 0; i < ownLimit; i++) {
+            if (n.x === ownBody[i].x && n.y === ownBody[i].y) return false;
+        }
+
+        // Avoid player head prediction
+        if (isBot && botDifficulty !== 'easy') {
+            const playerHead = playerSnake[0];
+            const distToPlayerHead = Math.abs(n.x - playerHead.x) + Math.abs(n.y - playerHead.y);
+            if (distToPlayerHead === 0) return false;
+            if (botDifficulty === 'impossible' && distToPlayerHead === 1) return false;
+        }
+
+        for (let i = 0; i < otherBody.length; i++) {
+            if (n.x === otherBody[i].x && n.y === otherBody[i].y) return false;
+        }
+        
         return true;
     });
 }
@@ -359,8 +422,17 @@ function reconstructPath(cameFrom, current) {
 
 function getSafeMove(ownBody, otherBody) {
     const head = ownBody[0];
-    const neighbors = getSafeNeighbors(head, ownBody, otherBody);
+    let neighbors = getSafeNeighbors(head, ownBody, otherBody);
+    
     if (neighbors.length === 0) return null;
+
+    // Explicitly block 180-degree turns into neck
+    if (ownBody.length > 1) {
+        neighbors = neighbors.filter(n => n.x !== ownBody[1].x || n.y !== ownBody[1].y);
+    }
+    
+    if (neighbors.length === 0) return null;
+
     return neighbors.reduce((best, n) => {
         const space = countFreeSpace(n, ownBody, otherBody);
         return space > best.space ? { move: n, space } : best;
@@ -373,10 +445,18 @@ function countFreeSpace(start, ownBody, otherBody) {
     const posKey = (p) => `${p.x},${p.y}`;
     visited.add(posKey(start));
     let count = 0;
-    while (queue.length > 0 && count < 150) {
+    const maxScan = botDifficulty === 'impossible' ? 250 : 150;
+    
+    while (queue.length > 0 && count < maxScan) {
         const curr = queue.shift();
         count++;
-        for (let n of getSafeNeighbors(curr, ownBody, otherBody)) {
+        // Use conservative neighbors for flood fill calculation
+        const neighbors = getBasicNeighbors(curr).filter(n => {
+            if (n.x < 0 || n.x >= TILE_COUNT || n.y < 0 || n.y >= TILE_COUNT) return false;
+            return !ownBody.some(p => p.x === n.x && p.y === n.y) && 
+                   !otherBody.some(p => p.x === n.x && p.y === n.y);
+        });
+        for (let n of neighbors) {
             if (!visited.has(posKey(n))) { visited.add(posKey(n)); queue.push(n); }
         }
     }
@@ -444,6 +524,7 @@ function endGame(winner) {
     isGameOver = true;
     gameStarted = false;
     clearTimeout(gameTimeout);
+    difficultySelect.disabled = false; // Unlock difficulty
     gameStatusEl.textContent = winner;
     winnerAnnouncement.textContent = winner;
     gameOverOverlay.classList.remove('hidden');

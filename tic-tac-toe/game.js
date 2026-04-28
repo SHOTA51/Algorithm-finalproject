@@ -28,6 +28,11 @@ const starterSelection = document.querySelector('.starter-selection');
 function initGame() {
     game.bigBoard = Array(9).fill(null);
     game.subBoards = Array(9).fill(null).map(() => Array(9).fill(null));
+    
+    // Unlock difficulty on reset
+    if (difficultySelect) difficultySelect.disabled = false;
+    if (starterSelect) starterSelect.disabled = false;
+
     // Determine starting player based on mode and starter selection
     if (game.gameMode === 'pvc') {
         let starter = starterSelect ? starterSelect.value : 'player';
@@ -108,6 +113,10 @@ function makeMove(boardIndex, cellIndex) {
     if (game.gameOver || game.subBoards[boardIndex][cellIndex]) return;
     if (game.activeBoard !== null && game.activeBoard !== boardIndex) return;
     
+    // Lock difficulty and starter once the first move is made
+    if (difficultySelect) difficultySelect.disabled = true;
+    if (starterSelect) starterSelect.disabled = true;
+
     game.subBoards[boardIndex][cellIndex] = game.currentPlayer;
     
     const subWinner = checkWinner(game.subBoards[boardIndex]);
@@ -746,6 +755,11 @@ function updateUI() {
 // End Game
 function endGame(winner) {
     game.gameOver = true;
+    
+    // Unlock difficulty on end
+    if (difficultySelect) difficultySelect.disabled = false;
+    if (starterSelect) starterSelect.disabled = false;
+
     if (winner === 'Draw') {
         winnerTextEl.textContent = '🤝 Draw Game!';
     } else {
