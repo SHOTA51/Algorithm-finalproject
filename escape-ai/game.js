@@ -185,7 +185,7 @@ async function startAiHunter() {
     stateValue.textContent = "HUNTING...";
     let openSet = [];
     let closedSet = new Set();
-    searchingNodes = [];
+    searchingNodes = new Set();
     
     for(let r=0; r<GRID_SIZE; r++) {
         for(let c=0; c<GRID_SIZE; c++) {
