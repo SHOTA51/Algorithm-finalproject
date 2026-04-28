@@ -27,7 +27,8 @@ let isGameOver = false;
 let wallsPlacedCount = 0;
 let finalPath = [];
 let searchingNodes = [];
-let cellSize = 0;
+let cellWidth = 0;
+let cellHeight = 0;
 
 class Node {
     constructor(r, c) {
@@ -43,10 +44,10 @@ class Node {
 
 function resizeCanvas() {
     const container = canvas.parentElement;
-    const size = Math.min(container.clientWidth, container.clientHeight);
-    canvas.width = size;
-    canvas.height = size;
-    cellSize = size / GRID_SIZE;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    cellWidth = canvas.width / GRID_SIZE;
+    cellHeight = canvas.height / GRID_SIZE;
 }
 
 function initGrid() {
@@ -279,7 +280,7 @@ function render() {
             
             if (searchingNodes.includes(node)) color = "rgba(168, 85, 247, 0.15)";
             ctx.fillStyle = color;
-            ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+            ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
 
             // Highlight restricted zones around player and hunter
             if (!isSearching && !isGameOver) {
@@ -288,10 +289,10 @@ function render() {
 
                 if (isNearPlayer) {
                     ctx.fillStyle = "rgba(34, 197, 94, 0.1)"; // Subtle green for player zone
-                    ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                    ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
                 } else if (isNearHunter) {
                     ctx.fillStyle = "rgba(239, 68, 68, 0.1)"; // Subtle red for hunter zone
-                    ctx.fillRect(c * cellSize, r * cellSize, cellSize - 1, cellSize - 1);
+                    ctx.fillRect(c * cellWidth, r * cellHeight, cellWidth - 1, cellHeight - 1);
                 }
             }
         }
@@ -300,8 +301,8 @@ function render() {
         ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 3;
         ctx.beginPath();
         finalPath.forEach((step, i) => {
-            const x = step.c * cellSize + cellSize/2;
-            const y = step.r * cellSize + cellSize/2;
+            const x = step.c * cellWidth + cellWidth/2;
+            const y = step.r * cellHeight + cellHeight/2;
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         });
         ctx.stroke();
@@ -310,20 +311,20 @@ function render() {
     // AI Hunter
     ctx.shadowBlur = 10; ctx.shadowColor = "#ef4444";
     ctx.fillStyle = "#ef4444"; 
-    ctx.fillRect(aiPos.c * cellSize + 2, aiPos.r * cellSize + 2, cellSize - 4, cellSize - 4);
+    ctx.fillRect(aiPos.c * cellWidth + 2, aiPos.r * cellHeight + 2, cellWidth - 4, cellHeight - 4);
     
     // Player
     ctx.shadowColor = "#22c55e";
     ctx.fillStyle = "#22c55e"; 
-    ctx.fillRect(playerPos.c * cellSize + 2, playerPos.r * cellSize + 2, cellSize - 4, cellSize - 4);
+    ctx.fillRect(playerPos.c * cellWidth + 2, playerPos.r * cellHeight + 2, cellWidth - 4, cellHeight - 4);
     ctx.shadowBlur = 0;
 }
 
 canvas.addEventListener('mousedown', (e) => {
     if (isSearching || isGameOver) return;
     const rect = canvas.getBoundingClientRect();
-    const c = Math.floor((e.clientX - rect.left) / (canvas.clientWidth / GRID_SIZE));
-    const r = Math.floor((e.clientY - rect.top) / (canvas.clientHeight / GRID_SIZE));
+    const c = Math.floor((e.clientX - rect.left) / (rect.width / GRID_SIZE));
+    const r = Math.floor((e.clientY - rect.top) / (rect.height / GRID_SIZE));
     if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
         let node = grid[r][c];
         
