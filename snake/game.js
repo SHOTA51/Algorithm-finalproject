@@ -4,14 +4,14 @@
  */
 
 // Game Constants
-const GRID_SIZE = 20;
-const TILE_COUNT = 20;
-const FIXED_SPEED = 7; // Fixed slower speed for better control
+const TILE_COUNT = 30;
+const GRID_SIZE = 20; 
+const TICK_RATE = 14; 
 
 // Game State
 let playerSnake = [];
 let botSnake = [];
-let food = { x: 10, y: 10 };
+let foods = [];
 let playerDx = 0;
 let playerDy = -1;
 let nextPlayerDx = 0;
@@ -20,10 +20,17 @@ let botDx = 0;
 let botDy = -1;
 let playerScore = 0;
 let botScore = 0;
-let gameLoop;
 let isGameOver = false;
 let gameStarted = false;
 let botDifficulty = 'hard';
+
+let isPlayerBoosting = false;
+let isBotBoosting = false;
+let lastPlayerBoostLossTime = 0;
+let lastBotBoostLossTime = 0;
+let playerTickCounter = 0;
+let botTickCounter = 0;
+let gameTimeout;
 
 // DOM Elements
 const canvas = document.getElementById('gameCanvas');
@@ -40,35 +47,25 @@ const gameOverOverlay = document.getElementById('game-over');
 const winnerAnnouncement = document.getElementById('winner-announcement');
 const restartBtn = document.getElementById('restart-btn');
 
-// Initialize Game (Placement according to red lines in start.jpg)
+// Initialize Game
 function init() {
-    // Player on the left "red line" (x=3)
-    playerSnake = [
-        { x: 3, y: 10 },
-        { x: 3, y: 11 },
-        { x: 3, y: 12 }
-    ];
-    playerDx = 0;
-    playerDy = -1;
-    nextPlayerDx = 0;
-    nextPlayerDy = -1;
+    canvas.width = TILE_COUNT * GRID_SIZE;
+    canvas.height = TILE_COUNT * GRID_SIZE;
 
-    // Bot on the right "red line" (x=16)
-    botSnake = [
-        { x: 16, y: 10 },
-        { x: 16, y: 11 },
-        { x: 16, y: 12 }
-    ];
-    botDx = 0;
-    botDy = -1;
+    playerSnake = [{ x: 4, y: 15 }, { x: 4, y: 16 }, { x: 4, y: 17 }];
+    playerDx = 0; playerDy = -1;
+    nextPlayerDx = 0; nextPlayerDy = -1;
 
-    food = { x: 10, y: 10 };
-    playerScore = 0;
-    botScore = 0;
+    botSnake = [{ x: 25, y: 15 }, { x: 25, y: 16 }, { x: 25, y: 17 }];
+    botDx = 0; botDy = -1;
+
+    foods = [];
+    generateFood(); 
+    playerScore = 0; botScore = 0;
     isGameOver = false;
     botDifficulty = difficultySelect.value;
     updateUI();
-    render(); // Draw initial state
+    render();
 }
 
 function startGame() {
@@ -77,30 +74,54 @@ function startGame() {
     startScreen.classList.add('hidden');
     gameOverOverlay.classList.add('hidden');
     
-    if (gameLoop) clearInterval(gameLoop);
-    gameLoop = setInterval(draw, 1000 / FIXED_SPEED);
+    if (gameTimeout) clearTimeout(gameTimeout);
+    gameLoop();
 }
 
-// Generate Food
-function generateFood() {
-    food = {
-        x: Math.floor(Math.random() * TILE_COUNT),
-        y: Math.floor(Math.random() * TILE_COUNT)
-    };
-    
-    const onSnake = (f) => {
-        return playerSnake.some(p => p.x === f.x && p.y === f.y) || 
-               botSnake.some(p => p.x === f.x && p.y === f.y);
-    };
-
-    if (onSnake(food)) generateFood();
-}
-
-// Draw Game
-function draw() {
+function gameLoop() {
     if (isGameOver) return;
 
-    aiMove();
+    playerTickCounter++;
+    botTickCounter++;
+
+    let playerMoved = false;
+    let botMoved = false;
+
+    if (isPlayerBoosting || playerTickCounter >= 2) {
+        playerMoved = true;
+        playerTickCounter = 0;
+    }
+
+    if (isBotBoosting || botTickCounter >= 2) {
+        botMoved = true;
+        botTickCounter = 0;
+    }
+
+    if (playerMoved || botMoved) {
+        processTick(playerMoved, botMoved);
+    }
+
+    gameTimeout = setTimeout(gameLoop, 1000 / TICK_RATE);
+}
+
+function generateFood() {
+    const targetFoodCount = 3;
+    while (foods.length < targetFoodCount) {
+        const newFood = {
+            x: Math.floor(Math.random() * TILE_COUNT),
+            y: Math.floor(Math.random() * TILE_COUNT)
+        };
+        const isOccupied = playerSnake.some(p => p.x === newFood.x && p.y === newFood.y) || 
+                           botSnake.some(p => p.x === newFood.x && p.y === newFood.y) ||
+                           foods.some(f => f.x === newFood.x && f.y === newFood.y);
+        if (!isOccupied) foods.push(newFood);
+    }
+}
+
+function processTick(movePlayer, moveBot) {
+    if (isGameOver) return;
+
+    if (moveBot) aiMove();
 
     playerDx = nextPlayerDx;
     playerDy = nextPlayerDy;
@@ -108,39 +129,56 @@ function draw() {
     const newPlayerHead = { x: playerSnake[0].x + playerDx, y: playerSnake[0].y + playerDy };
     const newBotHead = { x: botSnake[0].x + botDx, y: botSnake[0].y + botDy };
 
-    const playerDead = checkSnakeDead(newPlayerHead, playerSnake, botSnake);
-    const botDead = checkSnakeDead(newBotHead, botSnake, playerSnake);
+    let playerDead = movePlayer && checkSnakeDead(newPlayerHead, playerSnake, botSnake);
+    let botDead = moveBot && checkSnakeDead(newBotHead, botSnake, playerSnake);
 
-    if (playerDead && botDead) {
-        endGame("Draw!");
-        return;
-    } else if (playerDead) {
-        endGame("Bot Wins!");
-        return;
-    } else if (botDead) {
-        endGame("Player Wins!");
-        return;
+    if (playerDead && botDead) { endGame("Draw!"); return; }
+    else if (playerDead) { endGame("Bot Wins!"); return; }
+    else if (botDead) { endGame("Player Wins!"); return; }
+
+    let updateUIFlag = false;
+
+    if (movePlayer) {
+        playerSnake.unshift(newPlayerHead);
+        const foodIdx = foods.findIndex(f => f.x === newPlayerHead.x && f.y === newPlayerHead.y);
+        if (foodIdx !== -1) {
+            playerScore += 10;
+            foods.splice(foodIdx, 1);
+            updateUIFlag = true;
+        } else {
+            playerSnake.pop();
+        }
+
+        if (isPlayerBoosting && playerSnake.length > 2) {
+            const now = Date.now();
+            if (now - lastPlayerBoostLossTime > 300) {
+                playerSnake.pop();
+                lastPlayerBoostLossTime = now;
+            }
+        }
     }
 
-    playerSnake.unshift(newPlayerHead);
-    botSnake.unshift(newBotHead);
+    if (moveBot) {
+        botSnake.unshift(newBotHead);
+        const foodIdx = foods.findIndex(f => f.x === newBotHead.x && f.y === newBotHead.y);
+        if (foodIdx !== -1) {
+            botScore += 10;
+            foods.splice(foodIdx, 1);
+            updateUIFlag = true;
+        } else {
+            botSnake.pop();
+        }
 
-    let foodEaten = false;
-    if (newPlayerHead.x === food.x && newPlayerHead.y === food.y) {
-        playerScore += 10;
-        foodEaten = true;
-    } else {
-        playerSnake.pop();
+        if (isBotBoosting && botSnake.length > 2) {
+            const now = Date.now();
+            if (now - lastBotBoostLossTime > 300) {
+                botSnake.pop();
+                lastBotBoostLossTime = now;
+            }
+        }
     }
 
-    if (newBotHead.x === food.x && newBotHead.y === food.y) {
-        botScore += 10;
-        foodEaten = true;
-    } else {
-        botSnake.pop();
-    }
-
-    if (foodEaten) {
+    if (updateUIFlag) {
         updateUI();
         generateFood();
     }
@@ -162,53 +200,108 @@ function checkSnakeDead(head, ownBody, otherBody) {
 // AI Implementation
 function aiMove() {
     const head = botSnake[0];
-    if (botDifficulty === 'easy') moveEasy();
-    else if (botDifficulty === 'medium') moveMedium();
-    else moveHard();
+    const playerHead = playerSnake[0];
+    
+    // Find closest food
+    let foodTarget = foods[0];
+    let minDist = Infinity;
+    foods.forEach(f => {
+        const d = heuristic(head, f);
+        if (d < minDist) { minDist = d; foodTarget = f; }
+    });
+
+    const distToPlayer = heuristic(head, playerHead);
+    
+    // Boost Decision
+    if (botDifficulty === 'easy') {
+        isBotBoosting = false;
+    } else if (botDifficulty === 'medium') {
+        isBotBoosting = (minDist < 3 && botSnake.length > 6);
+    } else if (botDifficulty === 'hard') {
+        isBotBoosting = (minDist < 5 || (distToPlayer < 6 && botSnake.length > playerSnake.length)) && botSnake.length > 5;
+    } else { // Impossible
+        isBotBoosting = (minDist < 8 || distToPlayer < 10) && botSnake.length > 4;
+    }
+
+    if (isBotBoosting && lastBotBoostLossTime === 0) lastBotBoostLossTime = Date.now();
+
+    if (botDifficulty === 'easy') {
+        moveEasy(foodTarget);
+    } else if (botDifficulty === 'medium') {
+        moveMedium(foodTarget);
+    } else if (botDifficulty === 'hard') {
+        // Predictive target
+        const playerTarget = {
+            x: (playerHead.x + playerDx * 2 + TILE_COUNT) % TILE_COUNT,
+            y: (playerHead.y + playerDy * 2 + TILE_COUNT) % TILE_COUNT
+        };
+        const target = distToPlayer < 8 ? playerTarget : foodTarget;
+        moveHard(target);
+    } else { // Impossible
+        // Aggressive interception
+        const playerTarget = {
+            x: (playerHead.x + playerDx * 3 + TILE_COUNT) % TILE_COUNT,
+            y: (playerHead.y + playerDy * 3 + TILE_COUNT) % TILE_COUNT
+        };
+        const target = distToPlayer < 12 ? playerTarget : foodTarget;
+        moveImpossible(target);
+    }
 }
 
-function moveEasy() {
+function moveEasy(target) {
     const head = botSnake[0];
     const neighbors = getBasicNeighbors(head);
-    neighbors.sort((a, b) => heuristic(a, food) - heuristic(b, food));
+    // Easy doesn't check for walls/body strictly, just moves toward target
+    neighbors.sort((a, b) => heuristic(a, target) - heuristic(b, target));
     const move = neighbors[0];
     botDx = move.x - head.x;
     botDy = move.y - head.y;
     algoTag.textContent = "Greedy Algorithm";
-    algoDesc.textContent = "Moving directly towards food with minimal safety checks.";
+    algoDesc.textContent = "Basic movement toward the nearest food source.";
 }
 
-function moveMedium() {
+function moveMedium(target) {
     const head = botSnake[0];
     const safeNeighbors = getSafeNeighbors(head, botSnake, playerSnake);
     if (safeNeighbors.length > 0) {
-        safeNeighbors.sort((a, b) => heuristic(a, food) - heuristic(b, food));
+        safeNeighbors.sort((a, b) => heuristic(a, target) - heuristic(b, target));
         const move = safeNeighbors[0];
         botDx = move.x - head.x;
         botDy = move.y - head.y;
     }
-    algoTag.textContent = "Heuristic Avoidance";
-    algoDesc.textContent = "Prioritizing survival while moving toward food.";
+    algoTag.textContent = "Tactical Avoidance";
+    algoDesc.textContent = "Checking for immediate collisions while pursuing food.";
 }
 
-function moveHard() {
+function moveHard(target) {
     const start = botSnake[0];
-    const path = findPath(start, food, botSnake, playerSnake);
+    const path = findPath(start, target, botSnake, playerSnake);
     if (path && path.length > 1) {
         const nextStep = path[1];
         botDx = nextStep.x - start.x;
         botDy = nextStep.y - start.y;
-        algoTag.textContent = "A* Pathfinding";
-        algoDesc.textContent = "Finding the optimal path to food while avoiding both snakes.";
     } else {
         const move = getSafeMove(botSnake, playerSnake);
-        if (move) {
-            botDx = move.x - start.x;
-            botDy = move.y - start.y;
-        }
-        algoTag.textContent = "Survival BFS";
-        algoDesc.textContent = "Optimal path blocked. Moving to largest available space.";
+        if (move) { botDx = move.x - start.x; botDy = move.y - start.y; }
     }
+    algoTag.textContent = "A* Hunter Search";
+    algoDesc.textContent = "Calculating efficient paths to intercept the player or food.";
+}
+
+function moveImpossible(target) {
+    const start = botSnake[0];
+    // Impossible uses a "deeper" lookahead by avoiding spaces that would lead to dead ends
+    const path = findPath(start, target, botSnake, playerSnake);
+    if (path && path.length > 1) {
+        const nextStep = path[1];
+        botDx = nextStep.x - start.x;
+        botDy = nextStep.y - start.y;
+    } else {
+        const move = getSafeMove(botSnake, playerSnake);
+        if (move) { botDx = move.x - start.x; botDy = move.y - start.y; }
+    }
+    algoTag.textContent = "Lethal Predation";
+    algoDesc.textContent = "Executing near-perfect interception vectors. Escape is unlikely.";
 }
 
 // Helpers
@@ -274,7 +367,7 @@ function countFreeSpace(start, ownBody, otherBody) {
     const posKey = (p) => `${p.x},${p.y}`;
     visited.add(posKey(start));
     let count = 0;
-    while (queue.length > 0 && count < 100) {
+    while (queue.length > 0 && count < 150) {
         const curr = queue.shift();
         count++;
         for (let n of getSafeNeighbors(curr, ownBody, otherBody)) {
@@ -302,15 +395,19 @@ function render() {
 
     ctx.fillStyle = '#fb7185';
     ctx.shadowBlur = 10; ctx.shadowColor = '#fb7185';
-    ctx.fillRect(food.x * GRID_SIZE + 2, food.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+    foods.forEach(f => {
+        ctx.fillRect(f.x * GRID_SIZE + 2, f.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+    });
     ctx.shadowBlur = 0;
 
     playerSnake.forEach((p, i) => {
         ctx.fillStyle = i === 0 ? '#38bdf8' : '#0ea5e9';
+        if (isPlayerBoosting) ctx.fillStyle = '#7dd3fc';
         ctx.fillRect(p.x * GRID_SIZE + 1, p.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
     });
     botSnake.forEach((p, i) => {
         ctx.fillStyle = i === 0 ? '#f59e0b' : '#fbbf24';
+        if (isBotBoosting) ctx.fillStyle = '#fcd34d';
         ctx.fillRect(p.x * GRID_SIZE + 1, p.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
     });
 }
@@ -318,7 +415,7 @@ function render() {
 function endGame(winner) {
     isGameOver = true;
     gameStarted = false;
-    clearInterval(gameLoop);
+    clearTimeout(gameTimeout);
     gameStatusEl.textContent = winner;
     winnerAnnouncement.textContent = winner;
     gameOverOverlay.classList.remove('hidden');
@@ -328,9 +425,15 @@ function endGame(winner) {
 window.addEventListener('keydown', e => {
     if (!gameStarted && (e.key === 'Enter' || e.key === ' ')) startGame();
     
-    // Prevent default browser behavior (scrolling, selecting) for game keys
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
         e.preventDefault();
+    }
+
+    if (e.key === ' ') {
+        if (!isPlayerBoosting) {
+            isPlayerBoosting = true;
+            lastPlayerBoostLossTime = Date.now();
+        }
     }
 
     switch(e.key) {
@@ -341,6 +444,12 @@ window.addEventListener('keydown', e => {
     }
 });
 
+window.addEventListener('keyup', e => {
+    if (e.key === ' ') {
+        isPlayerBoosting = false;
+    }
+});
+
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', () => {
     init();
@@ -348,7 +457,7 @@ restartBtn.addEventListener('click', () => {
 });
 difficultySelect.addEventListener('change', () => { 
     botDifficulty = difficultySelect.value;
-    difficultySelect.blur(); // Remove focus so arrow keys don't change difficulty
+    difficultySelect.blur();
 });
 
 init();
